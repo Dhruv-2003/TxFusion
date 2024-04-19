@@ -1,6 +1,91 @@
+"use client";
+import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
+import { useWaitForTransaction } from "@/hooks/useWaitForTransaction";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
+import { parseAbi, parseEther } from "viem";
+import {
+  walletActionsEip3074,
+  walletActionsEip5792,
+  writeContracts,
+} from "viem/experimental";
+import { useAccount, useConnect, useSwitchChain, useWalletClient } from "wagmi";
+
+const abi = parseAbi([
+  "function approve(address, uint256) returns (bool)",
+  "function transferFrom(address, address, uint256) returns (bool)",
+]);
+
+const batToken = "0x2C0891219AE6f6adC9BE178019957B4743e5e790";
+const WETH = "0x4200000000000000000000000000000000000006";
+const UNISWAP_ROUTER = "0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4";
 
 export default function Home() {
+  const [amountIn, setAmountIn] = useState("0.01");
+  const { data: walletClient } = useWalletClient();
+  const { address } = useAccount();
+  const { connectors, connect } = useConnect();
+  const [transactionId, setTransactionId] = useState("");
+  const { data: status } = useWaitForTransaction({ txId: transactionId });
+
+  const { switchChain } = useSwitchChain();
+  const handleBatch = useCallback(async () => {
+    if (walletClient && address) {
+      const deadline = Math.round(new Date().getTime() / 1000) + 86400;
+      console.log("Executing Transactions");
+      console.log(amountIn);
+      try {
+        const txId = await writeContracts(walletClient, {
+          account: address,
+          contracts: [
+            {
+              address: WETH,
+              abi: WETH_ABI,
+              functionName: "deposit",
+              value: parseEther(amountIn),
+            },
+            {
+              address: WETH,
+              abi: WETH_ABI,
+              functionName: "approve",
+              args: [UNISWAP_ROUTER, parseEther(amountIn)],
+            },
+            {
+              address: UNISWAP_ROUTER,
+              abi: UNISWAP_ROUTER_ABI,
+              functionName: "exactInputSingle",
+              args: [
+                {
+                  tokenIn: WETH,
+                  tokenOut: batToken,
+                  fee: 3000,
+                  recipient: address,
+                  deadline: deadline,
+                  amountIn: parseEther(amountIn),
+                  amountOutMinimum: BigInt(0),
+                  sqrtPriceLimitX96: BigInt(0),
+                },
+              ],
+            },
+          ],
+        });
+
+        setTransactionId(txId);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }, [walletClient, address, amountIn]);
+
+  useEffect(() => {
+    switchChain({ chainId: 84532 });
+  }, [address, switchChain]);
+
+  const handleConnect = useCallback(() => {
+    connect({ connector: connectors[0] });
+  }, [connect, connectors]);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
@@ -8,6 +93,8 @@ export default function Home() {
           Get started by editing&nbsp;
           <code className="font-mono font-bold">src/app/page.tsx</code>
         </p>
+
+        <br />
         <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
           <a
             className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
@@ -27,17 +114,46 @@ export default function Home() {
           </a>
         </div>
       </div>
+      <button
+        onClick={handleConnect}
+        type="button"
+        className="bg-zinc-800 text-green-400 py-2 rounded-md shadow-2xl"
+      >
+        {address ? (
+          <a>
+            {address}
+            <button
+              type="button"
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              onClick={() => connectors[0].disconnect()}
+              className="rounded-md bg-zinc-800 text-xl px-8 py-2 shadow-2xl text-green-400"
+            >
+              Disconnect
+            </button>
+          </a>
+        ) : (
+          connectors[0].name
+        )}
+      </button>
+      <button
+        type="button"
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        onClick={handleBatch}
+        className="rounded-md bg-zinc-800 text-xl px-8 py-2 shadow-2xl text-green-400"
+      >
+        Send
+      </button>
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      {status?.receipts?.[0]?.transactionHash && (
+        <a
+          href={`https://sepolia.basescan.org/tx/${status.receipts?.[0].transactionHash}`}
+          target="_blank"
+          rel="noreferrer"
+          className="bg-white text-zinc-800 rounded-md text-xl px-4 py-2 absolute -bottom-10"
+        >
+          View on Basescan
+        </a>
+      )}
 
       <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
         <a
