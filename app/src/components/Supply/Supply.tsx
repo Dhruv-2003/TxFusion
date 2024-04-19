@@ -2,17 +2,9 @@ import { type ChangeEvent, useCallback, useState } from "react";
 import { erc20Abi, parseAbi, parseEther, parseUnits } from "viem";
 import { writeContracts } from "viem/experimental";
 import { useAccount, useWalletClient } from "wagmi";
-import { cometAbi } from "@/app/abi/cometAbi";
+
 import { useWaitForTransaction } from "./hooks/useWaitForTransaction";
-import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/app/constants/abi";
-
-const comet = "0x571621Ce60Cebb0c1D442B5afb38B1663C6Bf017";
-const usdc = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-
-// const abi = parseAbi([
-//   "function approve(address, uint256) returns (bool)",
-//   "function transfer(address, address, uint256) returns (bool)",
-// ]);
+import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
 
 const batToken = "0x2C0891219AE6f6adC9BE178019957B4743e5e790";
 const WETH = "0x4200000000000000000000000000000000000006";
@@ -70,23 +62,6 @@ export function Supply() {
           ],
         });
 
-        // {
-        //     address: UNISWAP_ROUTER,
-        //     abi: UNISWAP_ROUTER_ABI,
-        //     functionName: "exactInputSingle",
-        //     args: [
-        //       {
-        //         tokenIn: WETH,
-        //         tokenOut: batToken,
-        //         fee: 3000,
-        //         recipient: address,
-        //         deadline: deadline,
-        //         amountIn: parseEther(amountIn),
-        //         amountOutMinimum: BigInt(0),
-        //         sqrtPriceLimitX96: BigInt(0),
-        //       },
-        //     ],
-        //   },
         setTransactionId(txId);
       } catch (error) {
         console.log(error);
