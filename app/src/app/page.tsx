@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useAccount, useConnect, useSwitchChain } from "wagmi";
-import { Supply } from "../components/Supply/Supply";
+import { Supply } from "../components/SingleSwap/SingleSwap";
 import { truncateMiddle } from "../util/turncateMiddle";
 
 function App() {

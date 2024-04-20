@@ -1,19 +1,18 @@
-/* eslint-disable @typescript-eslint/semi */
-import { type ChangeEvent, useCallback, useState } from 'react';
-import { parseEther } from 'viem';
-import { writeContracts } from 'viem/experimental';
-import { useAccount, useWalletClient } from 'wagmi';
-import { approveToken } from '@/actions/generic/generictx';
-import { UNISWAP_ROUTER_ABI, WETH_ABI } from '@/constants/abi';
-import { useWaitForTransaction } from './hooks/useWaitForTransaction';
+import { type ChangeEvent, useCallback, useState } from "react";
+import { erc20Abi, parseAbi, parseEther, parseUnits } from "viem";
+import { writeContracts } from "viem/experimental";
+import { useAccount, useWalletClient } from "wagmi";
 
-const batToken = '0x2C0891219AE6f6adC9BE178019957B4743e5e790';
-const WETH = '0x4200000000000000000000000000000000000006';
-const UNISWAP_ROUTER = '0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4';
+import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
+import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
+import { cometABI } from "@/constants/compoundabi";
 
-export function Supply() {
-  const [amountIn, setAmountIn] = useState('');
-  const [transactionId, setTransactionId] = useState('');
+const comet = "0x61490650AbaA31393464C3f34E8B29cd1C44118E";
+const WETH = "0x4200000000000000000000000000000000000006";
+
+export function SingleSwap() {
+  const [amountIn, setAmountIn] = useState("");
+  const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
   const { data: status } = useWaitForTransaction({ txId: transactionId });
@@ -25,7 +24,7 @@ export function Supply() {
   const handleSupply = useCallback(async () => {
     if (walletClient && address) {
       const deadline = Math.round(new Date().getTime() / 1000) + 86400;
-      console.log('Executing Transactions');
+      console.log("Executing Transactions");
       try {
         const txId = await writeContracts(walletClient, {
           account: address,
@@ -33,27 +32,21 @@ export function Supply() {
             {
               address: WETH,
               abi: WETH_ABI,
-              functionName: 'deposit',
+              functionName: "deposit",
               args: [],
               value: parseEther(amountIn),
             },
-            approveToken(WETH, WETH_ABI, UNISWAP_ROUTER, amountIn),
             {
-              address: UNISWAP_ROUTER,
-              abi: UNISWAP_ROUTER_ABI,
-              functionName: 'exactInputSingle',
-              args: [
-                {
-                  tokenIn: WETH,
-                  tokenOut: batToken,
-                  fee: 3000,
-                  recipient: address,
-                  deadline: deadline,
-                  amountIn: parseEther(amountIn),
-                  amountOutMinimum: BigInt(0),
-                  sqrtPriceLimitX96: BigInt(0),
-                },
-              ],
+              address: WETH,
+              abi: WETH_ABI,
+              functionName: "approve",
+              args: [comet, parseEther(amountIn)],
+            },
+            {
+              address: comet,
+              abi: cometABI,
+              functionName: "supply",
+              args: [WETH, parseEther(amountIn)],
             },
           ],
         });
