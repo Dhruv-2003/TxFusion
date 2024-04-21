@@ -17,23 +17,31 @@ import { Aave } from "@/components/AaveLend/aave";
 
 export default function page() {
   return (
-    <div className="flex relative flex-col min-h-[90vh] w-full items-center justify-center max-w-7xl mx-auto">
-      {/* <span className="absolute top-8 left-12 text-green-400 text-3xl">
-        Multi batch
-      </span> */}
+    <div className="flex relative min-h-[90vh] py-6 w-full items-stretch justify-normal gap-6 flex-wrap max-w-7xl mx-auto">
+      <div className="flex items-stretch w-full gap-6">
+        <SingleSwap />
+        <MultipHopSwap />
+      </div>
+      <div className="flex items-stretch w-full gap-6">
+        <Aave />
+      </div>
+      <div className="flex items-stretch w-full gap-6">
+        <CompoundSupply />
+        <MultiSwap />
+      </div>
 
-      {/* <BatchCard
-        steps={[
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-        ]}
-      /> */}
-      <SingleSwap />
-      <MultiSwap />
-      <MultipHopSwap />
-      <CompoundSupply />
-      <Aave />
+      <div className=" flex items-stretch gap-6 w-full">
+        {/* <div className=" w-6/12 space-y-6">
+          <CompoundSupply />
+          <MultiSwap />
+        </div> */}
+        {/* <div className=" w-6/12 space-y-6">
+          <SingleSwap />
+          <MultipHopSwap />
+        </div> */}
+      </div>
+
+      {/* <Aave /> */}
       {/* <Supply /> */}
     </div>
   );
