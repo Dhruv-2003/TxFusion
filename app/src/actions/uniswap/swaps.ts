@@ -34,10 +34,10 @@ export const exactInputSingle = (
 });
 
 export const exactInputMultihop = (
-  tokenIn: `0x${string}`,
-  intermediateToken: `0x${string}`,
-  tokenOut: `0x${string}`,
-  recipient: `0x${string}`,
+  tokenIn: string,
+  intermediateToken: string,
+  tokenOut: string,
+  recipient: string,
   deadline: number,
   amountIn: string,
 ) => ({

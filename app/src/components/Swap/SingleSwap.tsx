@@ -1,30 +1,30 @@
-import { type ChangeEvent, useCallback, useState } from "react";
-import { erc20Abi, parseAbi, parseEther, parseUnits } from "viem";
-import { writeContracts } from "viem/experimental";
-import { useAccount, useWalletClient } from "wagmi";
+import { type ChangeEvent, useCallback, useState } from 'react'
+import { parseEther } from 'viem'
+import { writeContracts } from 'viem/experimental'
+import { useAccount, useWalletClient } from 'wagmi'
 
-import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
-import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
+import { UNISWAP_ROUTER_ABI, WETH_ABI } from '@/constants/abi'
+import { useWaitForTransaction } from '../../hooks/useWaitForTransaction'
 
-const batToken = "0x2C0891219AE6f6adC9BE178019957B4743e5e790";
-const WETH = "0x4200000000000000000000000000000000000006";
-const UNISWAP_ROUTER = "0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4";
+const batToken = '0x2C0891219AE6f6adC9BE178019957B4743e5e790'
+const WETH = '0x4200000000000000000000000000000000000006'
+const UNISWAP_ROUTER = '0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4'
 
 export function SingleSwap() {
-  const [amountIn, setAmountIn] = useState("");
-  const [transactionId, setTransactionId] = useState("");
-  const { data: walletClient } = useWalletClient();
-  const { address } = useAccount();
-  const { data: status } = useWaitForTransaction({ txId: transactionId });
+  const [amountIn, setAmountIn] = useState('')
+  const [transactionId, setTransactionId] = useState('')
+  const { data: walletClient } = useWalletClient()
+  const { address } = useAccount()
+  const { data: status } = useWaitForTransaction({ txId: transactionId })
 
   const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setAmountIn(e.target.value);
-  }, []);
+    setAmountIn(e.target.value)
+  }, [])
 
   const handleSupply = useCallback(async () => {
     if (walletClient && address) {
-      const deadline = Math.round(new Date().getTime() / 1000) + 86400;
-      console.log("Executing Transactions");
+      const deadline = Math.round(new Date().getTime() / 1000) + 86400
+      console.log('Executing Transactions')
       try {
         const txId = await writeContracts(walletClient, {
           account: address,
@@ -32,20 +32,20 @@ export function SingleSwap() {
             {
               address: WETH,
               abi: WETH_ABI,
-              functionName: "deposit",
+              functionName: 'deposit',
               args: [],
               value: parseEther(amountIn),
             },
             {
               address: WETH,
               abi: WETH_ABI,
-              functionName: "approve",
+              functionName: 'approve',
               args: [UNISWAP_ROUTER, parseEther(amountIn)],
             },
             {
               address: UNISWAP_ROUTER,
               abi: UNISWAP_ROUTER_ABI,
-              functionName: "exactInputSingle",
+              functionName: 'exactInputSingle',
               args: [
                 {
                   tokenIn: WETH,
@@ -60,14 +60,14 @@ export function SingleSwap() {
               ],
             },
           ],
-        });
+        })
 
-        setTransactionId(txId);
+        setTransactionId(txId)
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     }
-  }, [walletClient, address, amountIn]);
+  }, [walletClient, address, amountIn])
 
   return (
     <div className="flex flex-col w-full justify-center items-center space-y-10 h-96 relative">
@@ -101,5 +101,5 @@ export function SingleSwap() {
         </a>
       )}
     </div>
-  );
+  )
 }

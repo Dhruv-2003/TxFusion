@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   Card,
@@ -28,5 +28,5 @@ export default function page() {
 
       {/* <Supply /> */}
     </div>
-  );
+  )
 }
