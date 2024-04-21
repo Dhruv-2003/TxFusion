@@ -71,7 +71,7 @@ export default function CreateActionForm() {
     ]);
   };
 
-  console.log(fields);
+  // console.log(fields);
 
   const handleSubmit = () => {};
 

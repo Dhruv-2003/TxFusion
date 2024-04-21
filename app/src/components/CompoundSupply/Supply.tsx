@@ -127,16 +127,18 @@ export function CompoundSupply() {
         </span>
         <span className="relative invisible">Execute</span>
       </button>
-      {status?.receipts?.[0]?.transactionHash && (
-        <a
-          href={`https://sepolia.basescan.org/tx/${status.receipts?.[0].transactionHash}`}
-          target="_blank"
-          rel="noreferrer"
-          className="bg-white text-zinc-800 rounded-md text-xl px-4 py-2 absolute -bottom-10"
-        >
-          View on Basescan
-        </a>
-      )}
+      <div className="flex-col justify-center items-center mt-10">
+        {status?.receipts?.[0]?.transactionHash && (
+          <a
+            href={`https://sepolia.basescan.org/tx/${status.receipts?.[0].transactionHash}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-mx-auto justify-center bg-[#F4F7F5] text-[#1a1b25] rounded-md text-xl px-4 py-2"
+          >
+            View on Basescan
+          </a>
+        )}
+      </div>
     </div>
   );
 }
