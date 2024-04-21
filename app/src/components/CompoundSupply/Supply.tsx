@@ -10,7 +10,7 @@ import { useWaitForTransaction } from '../../hooks/useWaitForTransaction'
 const comet = '0x61490650AbaA31393464C3f34E8B29cd1C44118E'
 const WETH = '0x4200000000000000000000000000000000000006'
 
-export function SingleSwap() {
+export function Supply() {
   const [amountIn, setAmountIn] = useState('')
   const [transactionId, setTransactionId] = useState('')
   const { data: walletClient } = useWalletClient()
