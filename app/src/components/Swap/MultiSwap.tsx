@@ -1,16 +1,19 @@
 import { type ChangeEvent, useCallback, useState } from 'react'
-import { parseEther } from 'viem'
 import { writeContracts } from 'viem/experimental'
 import { useAccount, useWalletClient } from 'wagmi'
 
+import { approveToken, deposit } from '@/actions/generic/generictx'
+import { exactInputMultihop } from '@/actions/uniswap/swaps'
 import { WETH_ABI } from '@/constants/abi'
-import { cometABI } from '@/constants/compoundabi'
 import { useWaitForTransaction } from '../../hooks/useWaitForTransaction'
 
-const comet = '0x61490650AbaA31393464C3f34E8B29cd1C44118E'
+//these are mainnet addresses
+const DAI = '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb'
 const WETH = '0x4200000000000000000000000000000000000006'
+const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+const UNISWAP_ROUTER = '0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4'
 
-export function SingleSwap() {
+export function MultipHopSwap() {
   const [amountIn, setAmountIn] = useState('')
   const [transactionId, setTransactionId] = useState('')
   const { data: walletClient } = useWalletClient()
@@ -29,25 +32,9 @@ export function SingleSwap() {
         const txId = await writeContracts(walletClient, {
           account: address,
           contracts: [
-            {
-              address: WETH,
-              abi: WETH_ABI,
-              functionName: 'deposit',
-              args: [],
-              value: parseEther(amountIn),
-            },
-            {
-              address: WETH,
-              abi: WETH_ABI,
-              functionName: 'approve',
-              args: [comet, parseEther(amountIn)],
-            },
-            {
-              address: comet,
-              abi: cometABI,
-              functionName: 'supply',
-              args: [WETH, parseEther(amountIn)],
-            },
+            deposit(WETH, WETH_ABI, amountIn),
+            approveToken(WETH, WETH_ABI, UNISWAP_ROUTER, amountIn),
+            exactInputMultihop(DAI, USDC, WETH, address, deadline, amountIn),
           ],
         })
 

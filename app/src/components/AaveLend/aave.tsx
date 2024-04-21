@@ -1,21 +1,20 @@
 import { type ChangeEvent, useCallback, useState } from 'react'
-import { parseEther } from 'viem'
 import { writeContracts } from 'viem/experimental'
 import { useAccount, useWalletClient } from 'wagmi'
-
-import { WETH_ABI } from '@/constants/abi'
-import { cometABI } from '@/constants/compoundabi'
+import { AavePoolAddress, borrow, supplyCollateral } from '@/actions/aave'
+import { approveToken } from '@/actions/generic/generictx'
+import { USDC_ABI } from '@/constants/aavepoolabi'
 import { useWaitForTransaction } from '../../hooks/useWaitForTransaction'
 
-const comet = '0x61490650AbaA31393464C3f34E8B29cd1C44118E'
-const WETH = '0x4200000000000000000000000000000000000006'
+const USDC = '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
 
-export function SingleSwap() {
+export function Aave() {
   const [amountIn, setAmountIn] = useState('')
   const [transactionId, setTransactionId] = useState('')
   const { data: walletClient } = useWalletClient()
   const { address } = useAccount()
   const { data: status } = useWaitForTransaction({ txId: transactionId })
+  const [interestRateMode, setInterestRateMode] = useState(1)
 
   const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setAmountIn(e.target.value)
@@ -23,31 +22,14 @@ export function SingleSwap() {
 
   const handleSupply = useCallback(async () => {
     if (walletClient && address) {
-      const deadline = Math.round(new Date().getTime() / 1000) + 86400
       console.log('Executing Transactions')
       try {
         const txId = await writeContracts(walletClient, {
           account: address,
           contracts: [
-            {
-              address: WETH,
-              abi: WETH_ABI,
-              functionName: 'deposit',
-              args: [],
-              value: parseEther(amountIn),
-            },
-            {
-              address: WETH,
-              abi: WETH_ABI,
-              functionName: 'approve',
-              args: [comet, parseEther(amountIn)],
-            },
-            {
-              address: comet,
-              abi: cometABI,
-              functionName: 'supply',
-              args: [WETH, parseEther(amountIn)],
-            },
+            approveToken(USDC, USDC_ABI, AavePoolAddress, amountIn),
+            supplyCollateral(USDC, amountIn, address),
+            borrow(USDC, amountIn, address, interestRateMode),
           ],
         })
 

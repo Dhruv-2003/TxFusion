@@ -1,22 +1,22 @@
-"use client";
+'use client'
 
-import { useCallback, useEffect } from "react";
-import { useAccount, useConnect, useSwitchChain } from "wagmi";
-import { Supply } from "../components/SingleSwap/SingleSwap";
-import { truncateMiddle } from "../util/turncateMiddle";
+import { useCallback, useEffect } from 'react'
+import { useAccount, useConnect, useSwitchChain } from 'wagmi'
+import { SingleSwap } from '../components/Swap/SingleSwap'
+import { truncateMiddle } from '../util/turncateMiddle'
 
 function App() {
-  const { address } = useAccount();
-  const { connectors, connect } = useConnect();
-  const { switchChain } = useSwitchChain();
+  const { address } = useAccount()
+  const { connectors, connect } = useConnect()
+  const { switchChain } = useSwitchChain()
 
   useEffect(() => {
-    switchChain({ chainId: 84532 });
-  }, [address, switchChain]);
+    switchChain({ chainId: 84532 })
+  }, [address, switchChain])
 
   const handleConnect = useCallback(() => {
-    connect({ connector: connectors[0] });
-  }, [connect, connectors]);
+    connect({ connector: connectors[0] })
+  }, [connect, connectors])
 
   return (
     <div className="flex relative flex-col h-screen w-full items-center justify-center bg-zinc-900">
@@ -32,9 +32,9 @@ function App() {
           {address ? truncateMiddle(address, 6, 3) : connectors[0].name}
         </button>
       </div>
-      <Supply />
+      <SingleSwap />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
