@@ -2,15 +2,16 @@
 import React, { useState } from "react";
 
 interface Props {
+  title: string;
   steps: string[];
 }
 
-export default function BatchCard({ steps }: Props) {
+export default function BatchCard({ title, steps }: Props) {
   const [amount, setAmount] = useState<number>(0);
 
   return (
     <div className="bg-[#1a1b25] text-white rounded-lg shadow-xl py-8 px-8 space-y-5 w-full">
-      <div className=" text-2xl font-semibold">Title</div>
+      <div className=" text-2xl font-semibold">{title}</div>
       <div>
         <ul className=" list-decimal pl-5 space-y-0.5">
           {steps.map((step, idx) => (

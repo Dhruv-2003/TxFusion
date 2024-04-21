@@ -1,14 +1,5 @@
-'use client'
+"use client";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import Supply from "../components/CompoundSupply/Supply";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import BatchCard from "@/components/BatchCard";
 
 export default function page() {
@@ -19,6 +10,7 @@ export default function page() {
       </span> */}
 
       <BatchCard
+        title="Lorem duiasdn ui mn"
         steps={[
           "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
           "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
@@ -28,5 +20,5 @@ export default function page() {
 
       {/* <Supply /> */}
     </div>
-  )
+  );
 }
