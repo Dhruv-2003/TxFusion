@@ -1,22 +1,28 @@
-import './globals.css'
-import { type ReactNode } from 'react'
-import { Inter } from 'next/font/google'
+import "./globals.css";
+import { type ReactNode } from "react";
+import { Figtree } from "next/font/google";
 
-import { Providers } from './providers'
-import type { Metadata } from 'next'
+import { Providers } from "./providers";
+import type { Metadata } from "next";
+import Navbar from "@/components/navbar";
 
-const inter = Inter({ subsets: ['latin'] })
+const font = Figtree({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Compound Supplier',
-}
+  title: "Compound Supplier",
+};
 
 export default function RootLayout(props: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Providers>{props.children}</Providers>
+      <body className={font.className}>
+        <Providers>
+          <div>
+            <Navbar />
+          </div>
+          <div>{props.children}</div>
+        </Providers>
       </body>
     </html>
-  )
+  );
 }
