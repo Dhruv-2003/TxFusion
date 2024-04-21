@@ -11,11 +11,26 @@ import {
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 
+export interface funcType {
+  name: string;
+  type: string;
+  inputs: any[];
+  outputs: any[];
+  stateMutability: string;
+}
+
+export interface fieldType {
+  address: `0x${string}`;
+  abi: funcType[];
+  selectedFunction: string;
+  amount: string;
+}
+
 export default function CreateActionForm() {
   const [chain, setChain] = useState<string>("");
   const [protocol, setProtocol] = useState<string>("");
-  const [fields, setFields] = useState([
-    { address: "", abi: "", selectedFunction: "", amount: "" },
+  const [fields, setFields] = useState<fieldType[]>([
+    { address: "0x", abi: [], selectedFunction: "", amount: "" },
   ]);
 
   const handleChainChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -36,8 +51,10 @@ export default function CreateActionForm() {
   ) => {
     const values = [...fields];
     if (event.target.name === "address") {
-      values[index].address = event.target.value;
+      values[index].address = event.target.value as `0x${string}`;
     } else if (event.target.name === "abi") {
+      // @ts-ignore
+      // console.log(event.target.value);
       values[index].abi = event.target.value;
     } else if (event.target.name === "function") {
       values[index].selectedFunction = event.target.value;
@@ -50,9 +67,11 @@ export default function CreateActionForm() {
   const handleAddFields = () => {
     setFields([
       ...fields,
-      { address: "", abi: "", selectedFunction: "", amount: "" },
+      { address: "0x", abi: [], selectedFunction: "", amount: "" },
     ]);
   };
+
+  console.log(fields);
 
   const handleSubmit = () => {};
 
@@ -121,6 +140,7 @@ export default function CreateActionForm() {
                     name="abi"
                     className="bg-[#F4F7F5] w-full px-3 py-2 rounded-md text-[#1a1b25] outline-none ring-0"
                     onChange={(event) => handleInputChange(index, event)}
+                    //@ts-ignore
                     value={field.abi}
                   />
                 </div>
@@ -133,11 +153,23 @@ export default function CreateActionForm() {
                     value={field.selectedFunction}
                   >
                     <option value="">Select a function</option>
-                    <option value="baseSepolia">Base Sepolia</option>
+                    <option value="mint">mint</option>
+                    <option value="burn">burn</option>
+                    <option value="safeTransfer">safeTransfer</option>
                   </select>
+                  {/* {field.abi.length &&
+                      field.abi
+                        .filter(
+                          (func) =>
+                            func.type == "function" &&
+                            func.stateMutability != "read"
+                        )
+                        .map((func, id) => (
+                          <option value={func.name}>{func.name}</option>
+                        ))} */}
                 </div>
                 <div className="space-y-1">
-                  <span>Amount</span>
+                  <span>Arguements ( in [ ] )</span>
                   <input
                     placeholder="Enter amount"
                     name="amount"
