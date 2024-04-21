@@ -22,7 +22,7 @@ export default function Navbar() {
   return (
     <div className="pt-8 pb-4 flex items-center justify-between max-w-7xl mx-auto">
       <div className=" text-2xl font-semibold tracking-wide text-green-600">
-        0xMBT
+        TxFusion
       </div>
 
       <div className=" flex gap-2 items-center">

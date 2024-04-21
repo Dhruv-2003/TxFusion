@@ -8,7 +8,9 @@ const config = {
   bundlerUrl: `https://bundler.biconomy.io/api/v2/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44`,
 };
 
-const account = privateKeyToAccount("0x" + config.privateKey);
+const account = privateKeyToAccount(
+  ("0x" + config.privateKey) as `0x${string}`
+);
 
 const client = createWalletClient({
   chain: arbitrumSepolia,
@@ -24,7 +26,7 @@ export const sendTransaction = async () => {
   const saAddress = await smartWallet.getAccountAddress();
   console.log("SA Address", saAddress);
 
-  const txs = [];
+  const txs: any = [];
 
   const userOpResponse = await smartWallet.sendTransaction(txs);
   const { transactionHash } = await userOpResponse.waitForTxHash();
