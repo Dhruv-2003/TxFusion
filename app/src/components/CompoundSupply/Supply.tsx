@@ -64,7 +64,7 @@ export function CompoundSupply() {
   }, [walletClient, address, amountIn]);
 
   return (
-    <div className="bg-[#1a1b25] text-white rounded-lg shadow-xl py-8 px-8 space-y-5 w-full">
+    <div className="bg-[#1a1b2516] h-full text-black rounded-lg shadow-xl py-8 px-8 space-y-5 w-full flex-col justify-between items-end">
       <div className=" text-2xl font-semibold">
         Supply ETH to CometWETH using Compound
       </div>
@@ -104,13 +104,13 @@ export function CompoundSupply() {
       <button
         type="button"
         onClick={handleSupply}
-        className="relative inline-flex items-center justify-center p-4 px-6 py-2.5 overflow-hidden transition duration-300 ease-out border border-green-400 rounded-md shadow-md group w-full active:scale-95"
+        className="relative inline-flex items-center justify-center p-4 px-6 py-2.5 overflow-hidden transition duration-300 ease-out border border-black rounded-md shadow-md group w-full active:scale-95"
       >
-        <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-green-400 group-hover:translate-x-0 ease">
+        <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-black group-hover:translate-x-0 ease">
           <svg
             className="w-6 h-6"
             fill="none"
-            stroke="#000000"
+            stroke="white"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -122,7 +122,7 @@ export function CompoundSupply() {
             ></path>
           </svg>
         </span>
-        <span className="absolute flex items-center justify-center w-full h-full text-green-400 transition-all duration-300 transform group-hover:translate-x-full ease">
+        <span className="absolute flex items-center justify-center w-full h-full text-black transition-all duration-300 transform group-hover:translate-x-full ease">
           Execute
         </span>
         <span className="relative invisible">Execute</span>
