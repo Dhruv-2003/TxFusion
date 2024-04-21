@@ -1,16 +1,19 @@
 import { type ChangeEvent, useCallback, useState } from 'react'
-import { parseEther } from 'viem'
 import { writeContracts } from 'viem/experimental'
 import { useAccount, useWalletClient } from 'wagmi'
 
-import { UNISWAP_ROUTER_ABI, WETH_ABI } from '@/constants/abi'
+import { approveToken, deposit } from '@/actions/generic/generictx'
+import { exactInputMultihop } from '@/actions/uniswap/swaps'
+import { WETH_ABI } from '@/constants/abi'
 import { useWaitForTransaction } from '../../hooks/useWaitForTransaction'
 
-const batToken = '0x2C0891219AE6f6adC9BE178019957B4743e5e790'
+//these are mainnet addresses
+const DAI = '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb'
 const WETH = '0x4200000000000000000000000000000000000006'
+const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
 const UNISWAP_ROUTER = '0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4'
 
-export function MultiSwap() {
+export function MultipHopSwap() {
   const [amountIn, setAmountIn] = useState('')
   const [transactionId, setTransactionId] = useState('')
   const { data: walletClient } = useWalletClient()
@@ -29,53 +32,9 @@ export function MultiSwap() {
         const txId = await writeContracts(walletClient, {
           account: address,
           contracts: [
-            {
-              address: WETH,
-              abi: WETH_ABI,
-              functionName: 'deposit',
-              args: [],
-              value: parseEther(amountIn),
-            },
-            {
-              address: WETH,
-              abi: WETH_ABI,
-              functionName: 'approve',
-              args: [UNISWAP_ROUTER, parseEther(amountIn)],
-            },
-            {
-              address: UNISWAP_ROUTER,
-              abi: UNISWAP_ROUTER_ABI,
-              functionName: 'exactInputSingle',
-              args: [
-                {
-                  tokenIn: WETH,
-                  tokenOut: batToken,
-                  fee: 3000,
-                  recipient: address,
-                  deadline: deadline,
-                  amountIn: parseEther(amountIn),
-                  amountOutMinimum: BigInt(0),
-                  sqrtPriceLimitX96: BigInt(0),
-                },
-              ],
-            },
-            {
-              address: UNISWAP_ROUTER,
-              abi: UNISWAP_ROUTER_ABI,
-              functionName: 'exactInputSingle',
-              args: [
-                {
-                  tokenIn: batToken,
-                  tokenOut: batToken,
-                  fee: 3000,
-                  recipient: address,
-                  deadline: deadline,
-                  amountIn: parseEther('0.00001'),
-                  amountOutMinimum: BigInt(0),
-                  sqrtPriceLimitX96: BigInt(0),
-                },
-              ],
-            },
+            deposit(WETH, WETH_ABI, amountIn),
+            approveToken(WETH, WETH_ABI, UNISWAP_ROUTER, amountIn),
+            exactInputMultihop(DAI, USDC, WETH, address, deadline, amountIn),
           ],
         })
 

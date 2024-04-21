@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/semi */
 import { parseEther } from "viem";
 import { UNISWAP_ROUTER_ABI } from "@/constants/abi";
-import { approveToken } from "../generic/generictx";
 const UNISWAP_ROUTER = "0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4";
 const poolFee = 3000;
 
