@@ -14,6 +14,7 @@ import { MultiSwap } from "@/components/Swap/MultiSwap";
 import { MultipHopSwap } from "@/components/Swap/MultiHopSwap";
 import { CompoundSupply } from "@/components/CompoundSupply/Supply";
 import { Aave } from "@/components/AaveLend/aave";
+import { Custom } from "@/components/custom";
 
 export default function page() {
   return (
@@ -28,6 +29,9 @@ export default function page() {
       <div className="flex items-stretch w-full gap-6">
         <CompoundSupply />
         <MultiSwap />
+      </div>
+      <div className="flex items-stretch w-full gap-6">
+        <Custom/>
       </div>
 
       <div className=" flex items-stretch gap-6 w-full">
