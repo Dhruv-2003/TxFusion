@@ -6,12 +6,13 @@
 import { parseEther } from "viem";
 import { AAVEPOOL_ABI } from "@/constants/aavepoolabi";
 
-export const AavePoolAddress = "0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b";
+export const AavePoolAddress: `0x${string}` =
+  "0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b";
 
 export const supplyCollateral = (
   asset: `0x${string}`,
   amount: string,
-  onBehalfOf: `0x${string}`,
+  onBehalfOf: `0x${string}`
 ) => ({
   address: AavePoolAddress,
   abi: AAVEPOOL_ABI,
@@ -31,7 +32,7 @@ export const borrow = (
   asset: `0x${string}`,
   amount: string,
   onBehalfOf: `0x${string}`,
-  interestRateMode: 1 | 2,
+  interestRateMode: 1 | 2
 ) => {
   const amountNumeric = parseFloat(amount);
   const newAmount = amountNumeric - 5;

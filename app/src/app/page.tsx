@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Card,
@@ -6,10 +6,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Supply from "../components/CompoundSupply/Supply";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import BatchCard from "@/components/BatchCard";
+import { SingleSwap } from "@/components/Swap/SingleSwap";
+import { MultiSwap } from "@/components/Swap/MultiSwap";
+import { MultipHopSwap } from "@/components/Swap/MultiHopSwap";
+import { CompoundSupply } from "@/components/CompoundSupply/Supply";
+import { Aave } from "@/components/AaveLend/aave";
 
 export default function page() {
   return (
@@ -18,15 +23,19 @@ export default function page() {
         Multi batch
       </span> */}
 
-      <BatchCard
+      {/* <BatchCard
         steps={[
           "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
           "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
           "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
         ]}
-      />
-
+      /> */}
+      <SingleSwap />
+      <MultiSwap />
+      <MultipHopSwap />
+      <CompoundSupply />
+      <Aave />
       {/* <Supply /> */}
     </div>
-  )
+  );
 }

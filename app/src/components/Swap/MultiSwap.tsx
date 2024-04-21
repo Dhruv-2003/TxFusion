@@ -1,30 +1,33 @@
-import { type ChangeEvent, useCallback, useState } from 'react'
-import { parseEther } from 'viem'
-import { writeContracts } from 'viem/experimental'
-import { useAccount, useWalletClient } from 'wagmi'
+import { type ChangeEvent, useCallback, useState } from "react";
+import { parseEther } from "viem";
+import { writeContracts } from "viem/experimental";
+import { useAccount, useWalletClient } from "wagmi";
 
-import { UNISWAP_ROUTER_ABI, WETH_ABI } from '@/constants/abi'
-import { useWaitForTransaction } from '../../hooks/useWaitForTransaction'
+import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
+import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
 
-const batToken = '0x2C0891219AE6f6adC9BE178019957B4743e5e790'
-const WETH = '0x4200000000000000000000000000000000000006'
-const UNISWAP_ROUTER = '0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4'
+const batToken = "0x2C0891219AE6f6adC9BE178019957B4743e5e790";
+const WETH = "0x4200000000000000000000000000000000000006";
+const UNISWAP_ROUTER = "0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4";
 
 export function MultiSwap() {
-  const [amountIn, setAmountIn] = useState('')
-  const [transactionId, setTransactionId] = useState('')
-  const { data: walletClient } = useWalletClient()
-  const { address } = useAccount()
-  const { data: status } = useWaitForTransaction({ txId: transactionId })
-
-  const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setAmountIn(e.target.value)
-  }, [])
+  const [amountIn, setAmountIn] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const { data: walletClient } = useWalletClient();
+  const { address } = useAccount();
+  const { data: status } = useWaitForTransaction({ txId: transactionId });
+  const steps = [
+    "Deposit ETH to WETH contract",
+    "Approve WETH to UNISWAP Router",
+    "Swap WETH for BAT token on UNISWAP",
+    "Approve BAT to UNISWAP Router",
+    "Swap BAT token to WETH on UNISWAP",
+  ];
 
   const handleSupply = useCallback(async () => {
     if (walletClient && address) {
-      const deadline = Math.round(new Date().getTime() / 1000) + 86400
-      console.log('Executing Transactions')
+      const deadline = Math.round(new Date().getTime() / 1000) + 86400;
+      console.log("Executing Transactions");
       try {
         const txId = await writeContracts(walletClient, {
           account: address,
@@ -32,20 +35,20 @@ export function MultiSwap() {
             {
               address: WETH,
               abi: WETH_ABI,
-              functionName: 'deposit',
+              functionName: "deposit",
               args: [],
               value: parseEther(amountIn),
             },
             {
               address: WETH,
               abi: WETH_ABI,
-              functionName: 'approve',
+              functionName: "approve",
               args: [UNISWAP_ROUTER, parseEther(amountIn)],
             },
             {
               address: UNISWAP_ROUTER,
               abi: UNISWAP_ROUTER_ABI,
-              functionName: 'exactInputSingle',
+              functionName: "exactInputSingle",
               args: [
                 {
                   tokenIn: WETH,
@@ -60,9 +63,15 @@ export function MultiSwap() {
               ],
             },
             {
+              address: batToken,
+              abi: WETH_ABI,
+              functionName: "approve",
+              args: [UNISWAP_ROUTER, parseEther("0.00001")],
+            },
+            {
               address: UNISWAP_ROUTER,
               abi: UNISWAP_ROUTER_ABI,
-              functionName: 'exactInputSingle',
+              functionName: "exactInputSingle",
               args: [
                 {
                   tokenIn: batToken,
@@ -70,42 +79,86 @@ export function MultiSwap() {
                   fee: 3000,
                   recipient: address,
                   deadline: deadline,
-                  amountIn: parseEther('0.00001'),
+                  amountIn: parseEther("0.00001"),
                   amountOutMinimum: BigInt(0),
                   sqrtPriceLimitX96: BigInt(0),
                 },
               ],
             },
           ],
-        })
+        });
 
-        setTransactionId(txId)
+        setTransactionId(txId);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
-  }, [walletClient, address, amountIn])
+  }, [walletClient, address, amountIn]);
 
   return (
-    <div className="flex flex-col w-full justify-center items-center space-y-10 h-96 relative">
-      <div className="w-96 h-32 rounded-md shadow-2xl relative bg-zinc-800 flex flex-row justify-between items-center px-4">
-        <input
-          value={amountIn}
-          onChange={handleChangeAmount}
-          placeholder="0.00"
-          className="bg-transparent border-none h-full w-full flex items-center justify-center text-green-400 px-2 text-4xl"
-        />
-        <span className="text-5xl text-green-400 cursor-default inline-block bg-clip-text">
-          USDC
-        </span>
+    <div className="bg-[#1a1b25] text-white rounded-lg shadow-xl py-8 px-8 space-y-5 w-full">
+      <div className=" text-2xl font-semibold">
+        Swap Native Assets to Multiple Tokens on Uniswap
       </div>
+      <div>
+        <ul className=" list-decimal pl-5 space-y-0.5">
+          {steps.map((step, idx) => (
+            <li key={idx}>{step}</li>
+          ))}
+        </ul>
+      </div>
+      <div className=" space-y-4">
+        <div className=" space-y-1">
+          <span>Token</span>
+          <select className="bg-[#F4F7F5] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-pointer">
+            <option selected>Choose a token Out</option>
+            <option value="USDC">Base Alice token</option>
+            <option value="wEth">wETH</option>
+          </select>
+        </div>
+        <div className=" space-y-1">
+          <span>Chain</span>
+          <select className="bg-[#F4F7F5] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-pointer">
+            <option selected>Select a chain</option>
+            <option value="baseSepolia">Base Sepolia</option>
+          </select>
+        </div>
+        <div className=" space-y-1">
+          <span>Amount</span>
+          <input
+            value={amountIn}
+            onChange={(e) => setAmountIn(e.target.value)}
+            placeholder="Enter amount"
+            className=" bg-[#F4F7F5] w-full px-3 py-2 rounded-md text-[#1a1b25] outline-none ring-0"
+          />
+        </div>
+      </div>
+
       <button
         type="button"
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onClick={handleSupply}
-        className="rounded-md bg-zinc-800 text-xl px-8 py-2 shadow-2xl text-green-400"
+        className="relative inline-flex items-center justify-center p-4 px-6 py-2.5 overflow-hidden transition duration-300 ease-out border border-green-400 rounded-md shadow-md group w-full active:scale-95"
       >
-        Supply
+        <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-green-400 group-hover:translate-x-0 ease">
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="#000000"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            ></path>
+          </svg>
+        </span>
+        <span className="absolute flex items-center justify-center w-full h-full text-green-400 transition-all duration-300 transform group-hover:translate-x-full ease">
+          Execute
+        </span>
+        <span className="relative invisible">Execute</span>
       </button>
       {status?.receipts?.[0]?.transactionHash && (
         <a
@@ -118,5 +171,5 @@ export function MultiSwap() {
         </a>
       )}
     </div>
-  )
+  );
 }
