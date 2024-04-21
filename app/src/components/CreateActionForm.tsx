@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -14,7 +14,7 @@ export default function CreateActionForm() {
   const [chain, setChain] = useState<string>("");
   const [protocol, setProtocol] = useState<string>("");
   const [address, setAddress] = useState<string>("");
-  const [abi, setAbi] = useState<string>("");
+  const [abi, setAbi] = useState<any[]>();
   const [selectedFunction, setSelectedFunction] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
 
@@ -33,7 +33,7 @@ export default function CreateActionForm() {
   };
 
   const handleAbiChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setAbi(event.target.value);
+    setAbi(JSON.parse(event.target.value));
   };
 
   const handleFunctionChange = (
@@ -74,6 +74,11 @@ export default function CreateActionForm() {
             >
               <option value="">Select a chain</option>
               <option value="baseSepolia">Base Sepolia</option>
+              <option value="baseSepolia">Base</option>
+              <option value="baseSepolia">Gnosis</option>
+              <option value="baseSepolia">Gnosis Chiado</option>
+              <option value="baseSepolia">Arbitrum</option>
+              <option value="baseSepolia">Arbitrum Sepolia</option>
             </select>
           </div>
           <div className=" space-y-1 ">
@@ -116,7 +121,17 @@ export default function CreateActionForm() {
               value={selectedFunction}
             >
               <option value="">Select a function</option>
-              <option value="baseSepolia">Base Sepolia</option>
+              {/* {abi &&
+                abi
+                  .filter(
+                    (func) =>
+                      func.name == "function" && func.stateMutability != "view"
+                  )
+                  .map((func, index) => {
+                    <option key={index} value={func.name}>
+                      {func.name}
+                    </option>;
+                  })} */}
             </select>
           </div>
           <div className=" space-y-1 ">
