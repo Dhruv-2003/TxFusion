@@ -70,7 +70,6 @@ export function SingleSwap() {
       }
     }
   }, [walletClient, address, amountIn]);
-  console.log(status);
 
   return (
     <div className="bg-[#1a1b2516] h-full text-black rounded-lg shadow-xl py-8 px-8 space-y-5 w-full flex-col justify-between items-end">
