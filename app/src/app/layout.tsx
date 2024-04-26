@@ -9,7 +9,7 @@ import Navbar from "@/components/navbar";
 const font = Figtree({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Compound Supplier",
+  title: "txFusion",
 };
 
 export default function RootLayout(props: { children: ReactNode }) {

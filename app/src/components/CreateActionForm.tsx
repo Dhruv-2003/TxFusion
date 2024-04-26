@@ -16,7 +16,7 @@ import { writeContracts } from "viem/experimental";
 import { Abi, ContractFunctionParameters } from "viem";
 
 export interface funcType {
-  constant: false;
+  constant?: boolean;
   name: string;
   type: string;
   inputs: any[];
@@ -88,9 +88,8 @@ export default function CreateActionForm() {
       { address: "0x", abi: [], selectedFunction: undefined, arguements: "" },
     ]);
   };
-  console.log(fields);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = async () => {
     if (walletClient && address) {
       console.log("Executing Transactions");
 
@@ -115,7 +114,7 @@ export default function CreateActionForm() {
         console.log(error);
       }
     }
-  }, [walletClient, address]);
+  };
 
   const buildContractCall = async (): Promise<
     ContractFunctionParameters[] | undefined
@@ -143,6 +142,7 @@ export default function CreateActionForm() {
       console.log(error);
     }
   };
+  console.log(fields);
 
   return (
     <Dialog>
@@ -229,7 +229,6 @@ export default function CreateActionForm() {
                       field.abi
                         .filter((func) => {
                           const isValid =
-                            func.constant == false &&
                             func.type == "function" &&
                             (func.stateMutability == "nonpayable" ||
                               func.stateMutability == "payable");
