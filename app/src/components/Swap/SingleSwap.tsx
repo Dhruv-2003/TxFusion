@@ -5,6 +5,7 @@ import { useAccount, useWalletClient } from "wagmi";
 
 import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
 import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
+import { toast } from "sonner";
 
 const batToken = "0x2C0891219AE6f6adC9BE178019957B4743e5e790";
 const WETH = "0x4200000000000000000000000000000000000006";
@@ -63,7 +64,7 @@ export function SingleSwap() {
             },
           ],
         });
-
+        toast.success("Transaction Executed successfully ..");
         setTransactionId(txId);
       } catch (error) {
         console.log(error);

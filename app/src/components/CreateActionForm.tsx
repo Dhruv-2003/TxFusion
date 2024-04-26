@@ -96,7 +96,7 @@ export default function CreateActionForm() {
 
       if (chainId != Number(chain)) {
         console.log("Switch chain to the required one");
-        // toast.error("Please select a chain");
+        toast.error("Please select a chain");
         return;
         // await switchChain({ chainId: Number(chain) });
       }
@@ -113,9 +113,10 @@ export default function CreateActionForm() {
           account: address,
           contracts: contractCalls,
         });
-        toast.success("Action created successfully");
+        toast.success("Action executed successfully");
         setTransactionId(txId);
       } catch (error) {
+        toast.success("Error in creating Batch Transaction");
         console.log(error);
       }
     }
