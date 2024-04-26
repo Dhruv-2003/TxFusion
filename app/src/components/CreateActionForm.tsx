@@ -14,6 +14,7 @@ import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
 import { useWaitForTransaction } from "@/hooks/useWaitForTransaction";
 import { writeContracts } from "viem/experimental";
 import { Abi, ContractFunctionParameters } from "viem";
+import { toast } from "sonner";
 
 export interface funcType {
   constant: false;
@@ -96,12 +97,15 @@ export default function CreateActionForm() {
 
       if (chainId != Number(chain)) {
         console.log("Switch chain to the required one");
+        // toast.error("Please select a chain");
+        return;
         // await switchChain({ chainId: Number(chain) });
       }
 
       const contractCalls = await buildContractCall();
       if (!contractCalls) {
         console.log("Contract Calls not found");
+        toast.error("Contract calls not found");
         return;
       }
       console.log(contractCalls);
@@ -110,6 +114,7 @@ export default function CreateActionForm() {
           account: address,
           contracts: contractCalls,
         });
+        toast.success("Action created successfully");
         setTransactionId(txId);
       } catch (error) {
         console.log(error);
