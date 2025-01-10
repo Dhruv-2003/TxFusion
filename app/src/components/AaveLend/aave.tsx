@@ -1,10 +1,11 @@
 import { type ChangeEvent, useCallback, useState } from "react";
-import { writeContracts } from "viem/experimental";
+import { useSendCalls } from "wagmi/experimental";
 import { useAccount, useWalletClient } from "wagmi";
 import { AavePoolAddress, borrow, supplyCollateral } from "@/actions/aave";
 import { approveToken } from "@/actions/generic/generictx";
 import { USDC_ABI } from "@/constants/aavepoolabi";
 import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
+import { toast } from "sonner";
 
 const USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
 
@@ -12,36 +13,34 @@ export function Aave() {
   const [amountIn, setAmountIn] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { sendCallsAsync } = useSendCalls();
   const { address } = useAccount();
   const { data: status } = useWaitForTransaction({ txId: transactionId });
-  const [interestRateMode, setInterestRateMode] = useState(1);
+  const [interestRateMode, setInterestRateMode] = useState<1 | 2>(1);
   const steps = [
     "Approve USDC to AAVE Pool",
     "Supply USDC as collateral to the Pool",
     "Borrow token against the collateral from the pool",
   ];
 
-  const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setAmountIn(e.target.value);
-  }, []);
-
   const handleSupply = useCallback(async () => {
     if (walletClient && address) {
       console.log("Executing Transactions");
       try {
-        const txId = await writeContracts(walletClient, {
+        toast.loading("Executing Transaction ...");
+        const txId = await sendCallsAsync({
           account: address,
-          contracts: [
+          calls: [
             approveToken(USDC, USDC_ABI, AavePoolAddress, amountIn),
-            //@ts-ignore
             supplyCollateral(USDC, amountIn, address),
-            //@ts-ignore
             borrow(USDC, amountIn, address, interestRateMode),
           ],
         });
-
+        toast.dismiss();
+        toast.success("Transaction Executed Successfully");
         setTransactionId(txId);
       } catch (error) {
+        toast.dismiss();
         console.log(error);
       }
     }

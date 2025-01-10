@@ -1,12 +1,14 @@
 import { type ChangeEvent, useCallback, useState } from "react";
-import { writeContracts } from "viem/experimental";
+import { useSendCalls } from "wagmi/experimental";
 import { useAccount, useWalletClient } from "wagmi";
 import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
 import { ARBITRUM_NFT_ADDRESS, NFT_ABI } from "@/constants/nftABI";
+import { toast } from "sonner";
 
 export function Custom() {
   const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { sendCallsAsync } = useSendCalls();
   const { address } = useAccount();
   const { data: status } = useWaitForTransaction({ txId: transactionId });
 
@@ -20,9 +22,10 @@ export function Custom() {
     if (walletClient && address) {
       console.log("Executing Transactions");
       try {
-        const txId = await writeContracts(walletClient, {
+        toast.loading("Executing Transaction ...");
+        const txId = await sendCallsAsync({
           account: address,
-          contracts: [
+          calls: [
             {
               address: ARBITRUM_NFT_ADDRESS,
               abi: NFT_ABI,
@@ -53,9 +56,12 @@ export function Custom() {
             },
           ],
         });
+        toast.dismiss();
+        toast.success("Transaction Executed Successfully");
 
         setTransactionId(txId);
       } catch (error) {
+        toast.dismiss();
         console.log(error);
       }
     }

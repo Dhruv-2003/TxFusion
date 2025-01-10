@@ -1,6 +1,6 @@
 import { type ChangeEvent, useCallback, useState } from "react";
 import { parseEther } from "viem";
-import { writeContracts } from "viem/experimental";
+import { useSendCalls } from "wagmi/experimental";
 import { useAccount, useWalletClient } from "wagmi";
 
 import { WETH_ABI } from "@/constants/abi";
@@ -14,6 +14,7 @@ export function CompoundSupply() {
   const [amountIn, setAmountIn] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { sendCallsAsync } = useSendCalls();
   const { address } = useAccount();
   const { data: status } = useWaitForTransaction({ txId: transactionId });
   const steps = [
@@ -31,9 +32,9 @@ export function CompoundSupply() {
       const deadline = Math.round(new Date().getTime() / 1000) + 86400;
       console.log("Executing Transactions");
       try {
-        const txId = await writeContracts(walletClient, {
+        const txId = await sendCallsAsync({
           account: address,
-          contracts: [
+          calls: [
             {
               address: WETH,
               abi: WETH_ABI,

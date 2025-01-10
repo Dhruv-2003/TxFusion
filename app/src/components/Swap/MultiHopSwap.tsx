@@ -1,11 +1,13 @@
 import { type ChangeEvent, useCallback, useState } from "react";
-import { writeContracts } from "viem/experimental";
+import { useSendCalls } from "wagmi/experimental";
 import { useAccount, useWalletClient } from "wagmi";
 
 import { approveToken, deposit } from "@/actions/generic/generictx";
 import { exactInputMultihop } from "@/actions/uniswap/swaps";
 import { WETH_ABI } from "@/constants/abi";
 import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
+import { parseEther } from "viem";
+import { toast } from "sonner";
 
 //these are mainnet addresses
 const DAI = "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb";
@@ -17,6 +19,7 @@ export function MultipHopSwap() {
   const [amountIn, setAmountIn] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { sendCallsAsync } = useSendCalls();
   const { address } = useAccount();
   const { data: status } = useWaitForTransaction({ txId: transactionId });
   const steps = [
@@ -25,21 +28,17 @@ export function MultipHopSwap() {
     "Swap WETH for DAI via USDC token on UNISWAP Multi Hop",
   ];
 
-  const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setAmountIn(e.target.value);
-  }, []);
-
   const handleSupply = useCallback(async () => {
     if (walletClient && address) {
       const deadline = Math.round(new Date().getTime() / 1000) + 86400;
       console.log("Executing Transactions");
       try {
-        const txId = await writeContracts(walletClient, {
+        toast.loading("Executing Transaction ...");
+        const txId = await sendCallsAsync({
           account: address,
-          contracts: [
+          calls: [
             deposit(WETH, WETH_ABI, amountIn),
             approveToken(WETH, WETH_ABI, UNISWAP_ROUTER, amountIn),
-            // @ts-ignore
             exactInputMultihop(
               DAI,
               USDC,
@@ -50,9 +49,11 @@ export function MultipHopSwap() {
             ),
           ],
         });
-
+        toast.dismiss();
+        toast.success("Transaction Executed Successfully");
         setTransactionId(txId);
       } catch (error) {
+        toast.dismiss();
         console.log(error);
       }
     }

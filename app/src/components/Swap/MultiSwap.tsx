@@ -1,10 +1,11 @@
 import { type ChangeEvent, useCallback, useState } from "react";
 import { parseEther } from "viem";
-import { writeContracts } from "viem/experimental";
+import { useSendCalls } from "wagmi/experimental";
 import { useAccount, useWalletClient } from "wagmi";
 
 import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
 import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
+import { toast } from "sonner";
 
 const batToken = "0x2C0891219AE6f6adC9BE178019957B4743e5e790";
 const WETH = "0x4200000000000000000000000000000000000006";
@@ -14,6 +15,7 @@ export function MultiSwap() {
   const [amountIn, setAmountIn] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { sendCallsAsync } = useSendCalls();
   const { address } = useAccount();
   const { data: status } = useWaitForTransaction({ txId: transactionId });
   const steps = [
@@ -29,9 +31,10 @@ export function MultiSwap() {
       const deadline = Math.round(new Date().getTime() / 1000) + 86400;
       console.log("Executing Transactions");
       try {
-        const txId = await writeContracts(walletClient, {
+        toast.loading("Executing Transaction ...");
+        const txId = await sendCallsAsync({
           account: address,
-          contracts: [
+          calls: [
             {
               address: WETH,
               abi: WETH_ABI,
@@ -87,9 +90,11 @@ export function MultiSwap() {
             },
           ],
         });
-
+        toast.dismiss();
+        toast.success("Transaction Executed successfully ..");
         setTransactionId(txId);
       } catch (error) {
+        toast.dismiss();
         console.log(error);
       }
     }

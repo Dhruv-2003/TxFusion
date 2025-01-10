@@ -1,7 +1,7 @@
 import { type ChangeEvent, useCallback, useState } from "react";
 import { parseEther } from "viem";
-import { writeContracts } from "viem/experimental";
 import { useAccount, useWalletClient } from "wagmi";
+import { useWriteContracts, useSendCalls } from "wagmi/experimental";
 
 import { UNISWAP_ROUTER_ABI, WETH_ABI } from "@/constants/abi";
 import { useWaitForTransaction } from "../../hooks/useWaitForTransaction";
@@ -16,6 +16,7 @@ export function SingleSwap() {
   // const [token, settoken] = useState(second)
   const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { sendCallsAsync } = useSendCalls();
   const { address } = useAccount();
   const { data: status } = useWaitForTransaction({ txId: transactionId });
   const steps = [
@@ -29,9 +30,9 @@ export function SingleSwap() {
       const deadline = Math.round(new Date().getTime() / 1000) + 86400;
       console.log("Executing Transactions");
       try {
-        const txId = await writeContracts(walletClient, {
-          account: address,
-          contracts: [
+        toast.loading("Executing Transaction ...");
+        const txId = await sendCallsAsync({
+          calls: [
             {
               address: WETH,
               abi: WETH_ABI,
@@ -64,9 +65,12 @@ export function SingleSwap() {
             },
           ],
         });
+        toast.dismiss();
         toast.success("Transaction Executed successfully ..");
         setTransactionId(txId);
       } catch (error) {
+        toast.dismiss();
+
         console.log(error);
       }
     }

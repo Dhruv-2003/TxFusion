@@ -12,7 +12,7 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
 import { useWaitForTransaction } from "@/hooks/useWaitForTransaction";
-import { writeContracts } from "viem/experimental";
+import { useSendCalls } from "wagmi/experimental";
 import { Abi, ContractFunctionParameters } from "viem";
 import { toast } from "sonner";
 
@@ -37,6 +37,7 @@ export interface ContractCallType {}
 export default function CreateActionForm() {
   const [transactionId, setTransactionId] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { sendCallsAsync } = useSendCalls();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
 
@@ -107,16 +108,19 @@ export default function CreateActionForm() {
         toast.error("Contract calls not found");
         return;
       }
-      console.log(contractCalls);
+
       try {
-        const txId = await writeContracts(walletClient, {
+        toast.loading("Executing Transaction ...");
+        const txId = await sendCallsAsync({
           account: address,
-          contracts: contractCalls,
+          calls: contractCalls,
         });
+        toast.dismiss();
         toast.success("Action executed successfully");
         setTransactionId(txId);
       } catch (error) {
-        toast.success("Error in creating Batch Transaction");
+        toast.dismiss();
+        toast.error("Error in creating Batch Transaction");
         console.log(error);
       }
     }
@@ -148,7 +152,6 @@ export default function CreateActionForm() {
       console.log(error);
     }
   };
-  console.log(fields);
 
   return (
     <Dialog>
